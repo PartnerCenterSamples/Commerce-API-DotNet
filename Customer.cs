@@ -34,26 +34,32 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
             Console.Write("First Name\t: ");
             var first_name = Console.ReadLine().Trim();
 
-            Console.Write("Last Name\t:");
+            Console.Write("Last Name\t: ");
             var last_name = Console.ReadLine().Trim();
 
             Console.Write("Email\t\t: ");
             var email = Console.ReadLine().Trim();
 
-            Console.Write("Address Line1\t:");
+            Console.Write("Address Line1\t: ");
             var address_line1 = Console.ReadLine().Trim();
 
-            Console.Write("Address Line2\t:");
+            Console.Write("Address Line2\t: ");
             var address_line2 = Console.ReadLine().Trim();
 
-            Console.Write("City\t\t:");
+            Console.Write("City\t\t: ");
             var city = Console.ReadLine().Trim();
 
-            Console.Write("State\t\t:");
+            Console.Write("State\t\t: ");
             var region = Console.ReadLine().Trim();
 
-            Console.Write("ZipCode\t\t:");
+            Console.Write("ZipCode\t\t: ");
             var postal_code = Console.ReadLine().Trim();
+
+            Console.Write("PhoneNumber\t: ");
+            var phone_number = Console.ReadLine().Trim();
+
+            Console.Write("Country\t\t: ");
+            var country = Console.ReadLine().Trim();
 
             return new
             {
@@ -62,6 +68,8 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                 password = "Password!1",
                 profile = new
                 {
+                    first_name,
+                    last_name,
                     email,
                     company_name,
                     culture = "en-US",
@@ -76,7 +84,8 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                         city,
                         region,
                         postal_code,
-                        country = "US"
+                        country,
+                        phone_number
                     }
                 }
             };
