@@ -72,6 +72,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                 // Get the Reseller Cid, you can cache this value
                 string resellerCid = Reseller.GetCid(microsoftId, saAuthorizationToken.AccessToken);
 
+#if CREATE_CUSTOMER_SCENARIO
                 // Get input from the console application for creating a new customer
                 var customer = Customer.PopulateCustomerFromConsole();
 
@@ -89,11 +90,17 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                     var subscription = Subscription.GetSubscriptionByUri(line_Item.resulting_subscription_uri, saAuthorizationToken.AccessToken);
                     Console.WriteLine("Subscription: {0}", subscription.Id);
                 }
+#endif
+#if true
+                string ExistingCustomerMicrosoftId = ConfigurationManager.AppSettings["ExistingCustomerMicrosoftId"];
 
                 // You can cache this value too
                 var existingCustomerCid = Customer.GetCustomerCid(ExistingCustomerMicrosoftId, microsoftId, saAuthorizationToken.AccessToken);
 
                 customerAuthorizationToken = Customer.GetCustomer_Token(existingCustomerCid, adAuthorizationToken);
+
+                // get the customer entity
+                var customer = Customer.GetCustomer(existingCustomerCid, customerAuthorizationToken.AccessToken);
 
                 // Get all subscriptions placed by the reseller for the customer
                 var subscriptions = Subscription.GetSubscriptions(existingCustomerCid, resellerCid, saAuthorizationToken.AccessToken);
@@ -112,6 +119,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                     var subscription = Subscription.GetSubscriptionByUri(line_Item.resulting_subscription_uri, saAuthorizationToken.AccessToken);
                     Console.WriteLine("Subscription: {0}", subscription.Id);
                 }
+#endif
             }
             catch (System.FieldAccessException)
             {

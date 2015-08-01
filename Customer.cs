@@ -208,12 +208,11 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
         /// This method is used to get customer info in the Microsoft reseller ecosystem by the reseller
         /// </summary>
         /// <param param name="customerCid">cid of the customer whose information we are trying to retrieve</param>
-        /// <param name="resellerCid">reseller cid</param>
-        /// <param name="sa_Token">unexpired access token to access the partner apis</param>
+        /// <param name="customer_Token">unexpired access token to access the partner apis</param>
         /// <returns>the created customer information: customer cid, customer microsoft id</returns>
-        public static dynamic GetCustomer(string customerCid, string resellerCid, string sa_Token)
+        public static dynamic GetCustomer(string customerCid, string customer_Token)
         {
-            var request = (HttpWebRequest)HttpWebRequest.Create(string.Format("https://api.cp.microsoft.com/{0}/customers/{1}", resellerCid, customerCid));
+            var request = (HttpWebRequest)HttpWebRequest.Create(string.Format("https://api.cp.microsoft.com/customers/{0}", customerCid));
 
             request.Method = "GET";
             request.ContentType = "application/json";
@@ -222,7 +221,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
             request.Headers.Add("api-version", "2015-03-31");
             request.Headers.Add("x-ms-correlation-id", Guid.NewGuid().ToString());
             request.Headers.Add("x-ms-tracking-id", Guid.NewGuid().ToString());
-            request.Headers.Add("Authorization", "Bearer " + sa_Token);
+            request.Headers.Add("Authorization", "Bearer " + customer_Token);
 
             try
             {
