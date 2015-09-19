@@ -188,6 +188,59 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
         }
 
         /// <summary>
+        /// Suspends the subscription 
+        /// Ref https://msdn.microsoft.com/en-us/library/partnercenter/mt146400.aspx
+        /// </summary>
+        /// <param name="subscriptionId">existing subscription Id</param>
+        /// <param name="resellerCid">reseller Cid</param>
+        /// <param name="sa_Token">sa token of the reseller</param>
+        /// <returns>the subscription</returns>
+        public static dynamic Suspend(string subscriptionId, string resellerCid, string sa_Token)
+        {
+            var request = (HttpWebRequest)HttpWebRequest.Create(string.Format("https://api.cp.microsoft.com/{0}/subscriptions/{1}/add-suspension", resellerCid, subscriptionId));
+
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            request.Accept = "application/json";
+
+            request.Headers.Add("api-version", "2015-03-31");
+            request.Headers.Add("x-ms-correlation-id", Guid.NewGuid().ToString());
+            request.Headers.Add("x-ms-tracking-id", Guid.NewGuid().ToString());
+            request.Headers.Add("Authorization", "Bearer " + sa_Token);
+
+            // The only valid reason for suspension is CustomerCancellation. This is also true for removing the suspension
+            string content = "{ \"suspension_reason\" : \"CustomerCancellation\", \"suspension_reason_comment\" : \"Customer wanted to cancel\" }";
+
+            using (var writer = new StreamWriter(request.GetRequestStream()))
+            {
+                writer.Write(content);
+            }
+
+            try
+            {
+                Utilities.PrintWebRequest(request, content);
+
+                var response = request.GetResponse();
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    var responseContent = reader.ReadToEnd();
+                    Utilities.PrintWebResponse((HttpWebResponse)response, responseContent);
+
+                    return responseContent;
+                }
+            }
+            catch (WebException webException)
+            {
+                using (var reader = new StreamReader(webException.Response.GetResponseStream()))
+                {
+                    var responseContent = reader.ReadToEnd();
+                    Utilities.PrintErrorResponse((HttpWebResponse)webException.Response, responseContent);
+                }
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
         /// This method is to create a stream for a reseller to hear all subscription events
         /// </summary>
         /// <param name="resellerCid">cid of the reseller</param>
