@@ -4,7 +4,7 @@
 *                                                        *
 *********************************************************/
 
-namespace Microsoft.Partner.CSP.Api.V1.Samples
+namespace Microsoft.Partner.CSP.Azure.Samples
 {
 	using System;
 	using System.Net;
@@ -78,10 +78,11 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 		/// <summary>
 		/// Prompts the user to edit the config paramerters in app.config
 		/// </summary>
-		public static void ValidateConfiguration(string microsoftId, string defaultDomain, string appId, string key, string ExistingCustomerMicrosoftId)
+		public static void ValidateConfiguration(string microsoftId, string appId, string ExistingCustomerMicrosoftId)
 		{
-			if (microsoftId.Equals("Your Organization Microsoft Id") || defaultDomain.Equals("Your default domain, something like contoso.onmicrosoft.com") ||
-					appId.Equals("Your App Id") || key.Equals("Your key goes here") || ExistingCustomerMicrosoftId.Equals("Your existing customer ID"))
+			if (microsoftId.Equals("Your Organization Microsoft Id") || 
+					appId.Equals("Your App Id") || 
+					ExistingCustomerMicrosoftId.Equals("Your existing customer ID"))
 			{
 				Console.Write(
 						"\nHave you updated the app.config, with the settings from https://partnercenter.microsoft.com (y/n)? ");
@@ -90,7 +91,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 				{
 					Console.ForegroundColor = ConsoleColor.Yellow;
 					Console.WriteLine(
-							"\nUpdate AppId, Key, MicrosoftId, DefaultDomain in the app.config and run the app again");
+							"\nUpdate AppId, MicrosoftId, DefaultDomain in the app.config and run the app again");
 
 					Console.ResetColor();
 					Console.Write("\n\n\nHit enter to exit the app now");
@@ -98,27 +99,6 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 					return;
 				}
 			}
-		}
-
-		/// <summary>
-		/// Prompts the user to enter a valid number for scenario in app.config
-		/// </summary>
-		public static void PromptForScenario()
-		{
-			Console.Write("\nPlease enter a valid number (1-8) for scenario in the app.config and run the app again.");
-			Console.WriteLine("\n Scenarios:");
-			Console.WriteLine("\n 1 : Get Customer");
-			Console.WriteLine("\n 2 : Get Subscriptions");
-			Console.WriteLine("\n 3 : Get Orders");
-			Console.WriteLine("\n 4 : Create Order");
-			Console.WriteLine("\n 5 : Get Rate Card and Usage");
-			Console.WriteLine("\n 6 : Create Azure Virtual Machine");
-			Console.WriteLine("\n 7 : Transition to New SKU");
-			Console.WriteLine("\n 8 : List All Customers and Delete");
-			Console.Write("\n\n\nHit enter to exit the app now.");
-			Console.ReadLine();
-			return;
-
 		}
 
 		/// <summary>

@@ -38,7 +38,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                 //// Refresh the token on one of two conditions
                 //// 1. If the token has never been retrieved
                 //// 2. If the token is near expiry
-                
+
                 var saToken = GetSA_Token(adAuthorizationToken.AccessToken);
                 saAuthorizationToken = new AuthorizationToken(saToken.access_token, Convert.ToInt64(saToken.expires_in));
             }

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("APISamplesV1")]
+[assembly: AssemblyTitle("Microsoft.Partner.CSP.Azure.Samples")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("APISamplesV1")]
+[assembly: AssemblyProduct("Microsoft.Partner.CSP.Azure.Samples")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("fa61f850-15a4-4d36-9c03-cb360120c82b")]
+[assembly: Guid("83d6b8de-49d9-43d1-a177-7b4a7b41df73")]
 
 // Version information for an assembly consists of the following four values:
 //

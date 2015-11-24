@@ -75,7 +75,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                 Console.WriteLine("OfferType: {0}", offerType);
                 foreach (var item in selectedGroupedOffers.Offers.Select((offer, index) => new { Offer = offer, Index = index }))
                 {
-                    Console.WriteLine("{0}. {1}", item.Index+1, item.Offer.Name);
+                    Console.WriteLine("{0}. {1}", item.Index + 1, item.Offer.Name);
                 }
 
                 Console.Write("\nSelect Offer (by index): ");
@@ -86,10 +86,10 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                     done = false;
                 }
 
-                var selectedOffer = selectedGroupedOffers.Offers.ElementAt(selectedIndex-1);
+                var selectedOffer = selectedGroupedOffers.Offers.ElementAt(selectedIndex - 1);
 
                 bool validQuantity = false;
-                
+
                 do
                 {
                     Console.Write("\nQuantity {0} to {1}: ", selectedOffer.MinimumQuantity, selectedOffer.MaximumQuantity);
@@ -110,20 +110,20 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                     if (!string.IsNullOrWhiteSpace(input))
                     {
                         order.line_items.Add(new
-                            {
-                                //// has to be a unique number for each line item
-                                //// recommendation is to start with 0
-                                line_item_number = nrOfLineItems,
+                        {
+                            //// has to be a unique number for each line item
+                            //// recommendation is to start with 0
+                            line_item_number = nrOfLineItems,
 
-                                //// this is the offer uri for the offer that is being purchased, refer to the excel sheet for this
-                                offer_uri = selectedOffer.Uri,
+                            //// this is the offer uri for the offer that is being purchased, refer to the excel sheet for this
+                            offer_uri = selectedOffer.Uri,
 
-                                //// This is the quantity for this offer
-                                quantity = quantity,
+                            //// This is the quantity for this offer
+                            quantity = quantity,
 
-                                //// This is friendly name
-                                friendlyname = input
-                            });
+                            //// This is friendly name
+                            friendlyname = input
+                        });
                     }
                     else
                     {
@@ -272,6 +272,79 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
                         //// since a customer can have multiple azure subscriptions, one can use this friendly name to distinguish the subscriptions
                         //// when queried for subscription of this order line item, one would get this back in the friendlyname
                         friendlyname = "Engineering Team Azure Subscription"
+                    }
+                },
+                //// customer cid for who the order is being placed
+                recipient_customer_id = customerCid
+            };
+        }
+
+        /// <summary>
+        /// Sample for populating an azure order in TIP or Integration Sandbox
+        /// </summary>
+        /// <param name="customerCid">cid of the customer</param>
+        /// <returns>order object</returns>
+        public static dynamic PopulateAzureOrderInTIP(string customerCid)
+        {
+            //// This is the offer Uri of Azure Cloud Solution Provider from the excel sheet shared to partners
+            //// If you are using a tip tenant, placing this order will fail as it is not supported currently
+            const string azureOfferUri = "/fbf178a5-144e-46d1-aa81-612c2d3f97f4/offers/MS-AZR-0146P";
+
+            return new
+            {
+                line_items = new List<dynamic>()
+                {
+                    new
+                    {
+                        //// has to be a unique number for each line item
+                        //// recommendation is to start with 0
+                        line_item_number = 0,
+
+                        //// this is the offer uri for the offer that is being purchased, refer to the excel sheet for this
+                        offer_uri = azureOfferUri,
+
+                        //// Max quantity for azure subscription is only 1
+                        quantity = 1,
+
+                        //// since a customer can have multiple azure subscriptions, one can use this friendly name to distinguish the subscriptions
+                        //// when queried for subscription of this order line item, one would get this back in the friendlyname
+                        friendlyname = "Engineering Team Azure Subscription"
+                    }
+                },
+                //// customer cid for who the order is being placed
+                recipient_customer_id = customerCid
+            };
+        }
+
+        /// <summary>
+        /// Sample for populating an order from the given offer uri
+        /// </summary>
+        /// <param name="customerCid">cid of the customer</param>
+        /// <param name="offerUri">The offer Uri</param>
+        /// <param name="friendlyName">Friendly Name</param>
+        /// <returns>order object</returns>
+        public static dynamic PopulateOrderFromOfferUri(string customerCid, string offerUri, string friendlyName)
+        {
+           
+            return new
+            {
+                line_items = new List<dynamic>()
+                {
+                    new
+                    {
+                        //// has to be a unique number for each line item
+                        //// recommendation is to start with 0
+                        line_item_number = 0,
+
+                        //// this is the offer uri for the offer that is being purchased, refer to the excel sheet for this
+                        offer_uri = offerUri,
+
+                        //// Max quantity for azure subscription is only 1
+                        quantity = 1,
+
+                        //// since a customer can have multiple azure subscriptions, one can use this friendly name to distinguish the subscriptions
+                        //// when queried for subscription of this order line item, one would get this back in the friendlyname
+                        friendlyname = friendlyName
                     }
                 },
                 //// customer cid for who the order is being placed
