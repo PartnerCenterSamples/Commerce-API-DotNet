@@ -47,9 +47,9 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			//    Permission to Windows Azure Service Management API
 			//		Pre-consent
 			//  
-			string azureAppId          = ConfigurationManager.AppSettings["AzureAppId"];
+			string azureAppId = ConfigurationManager.AppSettings["AzureAppId"];
 			string AzureSubscriptionId = ConfigurationManager.AppSettings["AzureSubscriptionId"];
-			string credentialName      = ConfigurationManager.AppSettings["CredentialName"];
+			string credentialName = ConfigurationManager.AppSettings["CredentialName"];
 
 
 
@@ -100,11 +100,11 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 				}
 				if (intScenario == Constants.SCENARIO_SEVEN || intScenario == Constants.ALL_SCENARIOS)
 				{
-					Orchestrator.CreateCustomer();
+					Orchestrator.CreateCustomer(defaultDomain, appId, key, microsoftId);
 				}
 				if (intScenario == Constants.SCENARIO_EIGHT || intScenario == Constants.ALL_SCENARIOS)
 				{
-					Orchestrator.CreateAzureVirtualMachine(azureAppId, credentialName, ExistingCustomerMicrosoftId, AzureSubscriptionId);
+					Orchestrator.CreateVirtualMachineInNewSubscription(defaultDomain, appId, key, microsoftId, azureAppId, credentialName);
 				}
 			}
 			catch (System.FieldAccessException)
@@ -124,6 +124,12 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 				Console.WriteLine("\n Make sure the app.config has all the right settings.  The defaults in the app.config won't work."
 						+ "\n If the settings are correct, its possible you are hitting a service error.  Try again."
 						+ "\n If the error persists, contact support");
+			}
+			catch (Exception ex)
+			{
+				Console.ForegroundColor = ConsoleColor.Yellow;
+				Console.WriteLine("\n An unrecoverable error occurred:");
+				Console.WriteLine(ex.Message);
 			}
 
 			Console.ResetColor();

@@ -25,7 +25,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			Console.WriteLine("Create New Customer");
 			Console.WriteLine("=========================================");
 
-			Console.Write("Enter domain prefix to be created:");
+			Console.Write("Enter domain prefix to be created (do not 'onmicrosoft.com'):");
 			var domainprefix = Console.ReadLine().Trim();
 
 			Console.Write("Company Name\t: ");
@@ -356,9 +356,9 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 
 
 		/// <summary>
-		/// Given the ad token this method retrieves the customer token for accessing customer profile or entitlements
+		/// Given the Azure AD token for a reseller, this method retrieves the customer token for accessing customer profile or entitlements
 		/// </summary>
-		/// <param name="ad_Token">this is the ad token</param>
+		/// <param name="ad_Token">Azure AD token for a reseller</param>
 		/// <returns>the customer_token object which contains access_token, expiration duration to perform actions on the customer object</returns>
 		private static dynamic GetCustomer_Token(string customerCid, string ad_Token)
 		{

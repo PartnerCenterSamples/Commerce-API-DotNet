@@ -96,9 +96,11 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 		/// <param name="key">Key for this application in Azure Active Directory</param>
 		/// <param name="customerMicrosoftId">Microsoft Id of the customer</param>
 		/// <param name="resellerMicrosoftId">Microsoft Id of the reseller</param>
-		public static void CreateOrder(string defaultDomain, string appId, string key, string customerMicrosoftId,
-				string resellerMicrosoftId)
+		public static string CreateOrder(string defaultDomain, string appId, string key,
+																		 string customerMicrosoftId, string resellerMicrosoftId)
 		{
+			string result = String.Empty;
+
 			// Get Active Directory token first
 			AuthorizationToken adAuthorizationToken = Reseller.GetAD_Token(defaultDomain, appId, key);
 
@@ -116,34 +118,86 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			var existingCustomerOrder = Order.PopulateOrderFromConsole(customerCid);
 			// Place the order and subscription uri and entitlement uri are returned per each line item
 			var existingCustomerPlacedOrder = Order.PlaceOrder(existingCustomerOrder, resellerCid,
-					saAuthorizationToken.AccessToken);
+																												 saAuthorizationToken.AccessToken);
 			foreach (var line_Item in existingCustomerPlacedOrder.line_items)
 			{
 				var subscription = Subscription.GetSubscriptionByUri(line_Item.resulting_subscription_uri,
-						saAuthorizationToken.AccessToken);
+																														 saAuthorizationToken.AccessToken);
+				result = subscription.Id;
 				Console.WriteLine("Subscription: {0}", subscription.Id);
 			}
+
+			return result;
 		}
 
-		internal static void CreateCustomer()
+		public static string CreateOrderWithAzureTip(string defaultDomain, string appId, string key,
+																									string customerMicrosoftId, string resellerMicrosoftId)
 		{
-			//// Get input from the console application for creating a new customer
-			//var customer = Customer.PopulateCustomerFromConsole();
+			string result = String.Empty;
 
-			//// This is the created customer object that contains the cid, the microsoft tenant id etc
-			//var createdCustomer = Customer.CreateCustomer(customer, resellerCid, saAuthorizationToken.AccessToken);
+			// Get Active Directory token first
+			AuthorizationToken adAuthorizationToken = Reseller.GetAD_Token(defaultDomain, appId, key);
 
-			//// Populate a multi line item order
-			//var newCustomerOrder = Order.PopulateOrderWithMultipleLineItems(createdCustomer.customer.id);
+			// Using the ADToken get the sales agent token
+			AuthorizationToken saAuthorizationToken = Reseller.GetSA_Token(adAuthorizationToken);
 
-			//// Place the order and subscription uri and entitlement uri are returned per each line item
-			//var newCustomerPlacedOrder = Order.PlaceOrder(newCustomerOrder, resellerCid, saAuthorizationToken.AccessToken);
+			// Get the Reseller Cid, you can cache this value
+			string resellerCid = Reseller.GetCid(resellerMicrosoftId, saAuthorizationToken.AccessToken);
 
-			//foreach (var line_Item in newCustomerPlacedOrder.line_items)
-			//{
-			//	var subscription = Subscription.GetSubscriptionByUri(line_Item.resulting_subscription_uri, saAuthorizationToken.AccessToken);
-			//	Console.WriteLine("Subscription: {0}", subscription.Id);
-			//}
+			// You can cache this value too
+			var customerCid = Customer.GetCustomerCid(customerMicrosoftId, resellerMicrosoftId,
+					saAuthorizationToken.AccessToken);
+
+			// Populate an Azure in TIP order
+			var newOrder = Order.PopulateAzureOrderInTIP(customerCid);
+			// Place the order and subscription uri and entitlement uri are returned per each line item
+			var existingCustomerPlacedOrder = Order.PlaceOrder(newOrder, resellerCid,
+																												 saAuthorizationToken.AccessToken);
+			foreach (var line_Item in existingCustomerPlacedOrder.line_items)
+			{
+				var subscription = Subscription.GetSubscriptionByUri(line_Item.resulting_subscription_uri,
+																														 saAuthorizationToken.AccessToken);
+				result = subscription.Id;
+				Console.WriteLine("Subscription: {0}", subscription.Id);
+			}
+
+			return result;
+		}
+		internal static string CreateCustomer(string defaultDomain, string appId, string key,
+				string resellerMicrosoftId)
+		{
+			// Get Active Directory token first
+			AuthorizationToken adAuthorizationToken = Reseller.GetAD_Token(defaultDomain, appId, key);
+
+			// Using the ADToken get the sales agent token
+			AuthorizationToken saAuthorizationToken = Reseller.GetSA_Token(adAuthorizationToken);
+
+			// Get the Reseller Cid, you can cache this value
+			string resellerCid = Reseller.GetCid(resellerMicrosoftId, saAuthorizationToken.AccessToken);
+			// Get input from the console application for creating a new customer
+			var customer = Customer.PopulateCustomerFromConsole();
+
+			// This is the created customer object that contains the cid, the microsoft tenant id etc
+			var createdCustomer = Customer.CreateCustomer(customer, resellerCid, saAuthorizationToken.AccessToken);
+			if (createdCustomer == null)
+			{
+				throw new Exception("Error creating customer");
+			}
+			string newCustomerMicrosoftId = createdCustomer.customer.identity.data.tid;
+
+			// Populate a multi line item order
+			var newCustomerOrder = Order.PopulateOrderWithMultipleLineItems(createdCustomer.customer.id);
+
+			// Place the order and subscription uri and entitlement uri are returned per each line item
+			var newCustomerPlacedOrder = Order.PlaceOrder(newCustomerOrder, resellerCid, saAuthorizationToken.AccessToken);
+
+			foreach (var line_Item in newCustomerPlacedOrder.line_items)
+			{
+				var subscription = Subscription.GetSubscriptionByUri(line_Item.resulting_subscription_uri, saAuthorizationToken.AccessToken);
+				Console.WriteLine("Subscription: {0}", subscription.Id);
+			}
+
+			return newCustomerMicrosoftId;
 		}
 
 		/// <summary>
@@ -390,7 +444,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 		/// <param name="credentialName">Internet name/address used to identify entry in Credential Manager</param>
 		/// <param name="appId">appid that is registered for this application in Azure Active Directory (AAD)</param>
 		/// <param name="customerTenantId">Id or Domain of the customer Azure tenant</param>
-		public static void CreateAzureVirtualMachine(string appId, string credentialName, string customerTenantId, string subscriptionId)
+		private static void CreateAzureVirtualMachine(string appId, string credentialName, string customerTenantId, string subscriptionId)
 		{
 			// Get Azure Authentication Token
 			string azureToken = Reseller.GetAzureAuthTokenForCustomerTenant(appId, credentialName, customerTenantId);
@@ -552,8 +606,8 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 
 			// #9  Create a New User
 			var newUserInfo = User.PopulateUserFromConsole();
-			var newUser = AzureResourceManager.CreateUser(newUserInfo.displayName, newUserInfo.mailNickname, 
-																									  newUserInfo.userPrincipalName, newUserInfo.password,
+			var newUser = AzureResourceManager.CreateUser(newUserInfo.displayName, newUserInfo.mailNickname,
+																										newUserInfo.userPrincipalName, newUserInfo.password,
 																										azureToken, correlationId);
 
 			// Role Id for Role 'Owner'
@@ -565,5 +619,31 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 					correlationId);
 		}
 
+		public static void CreateVirtualMachineInNewSubscription(string defaultDomain, string ptrCtrAppId, string ptrCtrAppSecret,
+																														 string resellerMicrosoftId, string azureAppId, string credentialName)
+		{
+			// Get Active Directory token first
+			AuthorizationToken adAuthorizationToken = Reseller.GetAD_Token(defaultDomain, ptrCtrAppId, ptrCtrAppSecret);
+
+			// Using the ADToken get the sales agent token
+			AuthorizationToken saAuthorizationToken = Reseller.GetSA_Token(adAuthorizationToken);
+
+			// Get the Reseller Cid, you can cache this value
+			string resellerCid = Reseller.GetCid(resellerMicrosoftId, saAuthorizationToken.AccessToken);
+
+			var s = Stream.CreateStream(resellerCid, saAuthorizationToken.AccessToken);
+
+			string newCustomerMicrosoftId = Orchestrator.CreateCustomer(defaultDomain, ptrCtrAppId, ptrCtrAppSecret, resellerMicrosoftId);
+			string newSubscriptionId = Orchestrator.CreateOrderWithAzureTip(defaultDomain, ptrCtrAppId, ptrCtrAppSecret, newCustomerMicrosoftId, resellerMicrosoftId);
+
+			bool continueProcess = Stream.WaitForSubscriptionEvent(resellerCid, saAuthorizationToken.AccessToken, newSubscriptionId, StreamEvents.Subscription.Provisioned);
+
+			if (continueProcess)
+			{
+				CreateAzureVirtualMachine(azureAppId, credentialName, newCustomerMicrosoftId, newSubscriptionId);
+			}
+
+			Stream.DeleteStream(resellerCid, saAuthorizationToken.AccessToken);
+		}
 	}
 }

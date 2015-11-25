@@ -70,6 +70,7 @@
     <Compile Include="Orchestrator.cs" />
     <Compile Include="Resource.cs" />
     <Compile Include="SelfLink.cs" />
+    <Compile Include="Stream.cs" />
     <Compile Include="Subscription.cs" />
     <Compile Include="Usage.cs" />
     <Compile Include="UsageResponse.cs" />
@@ -81,7 +82,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="LICENSE.md" />
     <None Include="packages.config" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
