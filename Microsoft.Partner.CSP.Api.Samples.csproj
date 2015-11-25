@@ -52,7 +52,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthorizationToken.cs" />
+    <Compile Include="AzureRequestBuilder.cs" />
+    <Compile Include="AzureResourceManager.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="CredentialManager.cs" />
     <Compile Include="Customer.cs" />
     <Compile Include="InfoField.cs" />
     <Compile Include="Invoker.cs" />
@@ -71,6 +74,7 @@
     <Compile Include="Usage.cs" />
     <Compile Include="UsageResponse.cs" />
     <Compile Include="UsageType.cs" />
+    <Compile Include="User.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>

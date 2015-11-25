@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
-namespace Microsoft.Partner.CSP.Azure.Samples
+namespace Microsoft.Partner.CSP.Api.V1.Samples
 {
 	internal static class CredentialManager
 	{

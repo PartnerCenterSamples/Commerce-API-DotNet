@@ -33,15 +33,25 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			// This is the key for this application in Azure Active Directory
 			// This is only available at the time your admin agent has created a new app at https://partnercenter.microsoft.com/en-us/pc/ApiIntegration/Overview
 			// You could alternatively goto Azure Active Directory and generate a new key, and use that.
+			string key = ConfigurationManager.AppSettings["Key"];
+
+			string ExistingCustomerMicrosoftId = ConfigurationManager.AppSettings["ExistingCustomerMicrosoftId"];
+
+
+			// This is the clientId for this application in Azure Active Directory
+			// This is only available at the time you created a new app at
+			// "https://manage.windowsazure.com/#Workspaces/ActiveDirectoryExtension/directory"
 
 			//  Configure application 
 			//		Multi-tenant
 			//    Permission to Windows Azure Service Management API
 			//		Pre-consent
 			//  
-			string key = ConfigurationManager.AppSettings["Key"];
+			string azureAppId          = ConfigurationManager.AppSettings["AzureAppId"];
+			string AzureSubscriptionId = ConfigurationManager.AppSettings["AzureSubscriptionId"];
+			string credentialName      = ConfigurationManager.AppSettings["CredentialName"];
 
-			string ExistingCustomerMicrosoftId = ConfigurationManager.AppSettings["ExistingCustomerMicrosoftId"];
+
 
 			// Prompts the user to edit the config parametres if its not already done.
 			Utilities.ValidateConfiguration(microsoftId, defaultDomain, appId, key, ExistingCustomerMicrosoftId);
@@ -91,6 +101,10 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 				if (intScenario == Constants.SCENARIO_SEVEN || intScenario == Constants.ALL_SCENARIOS)
 				{
 					Orchestrator.CreateCustomer();
+				}
+				if (intScenario == Constants.SCENARIO_EIGHT || intScenario == Constants.ALL_SCENARIOS)
+				{
+					Orchestrator.CreateAzureVirtualMachine(azureAppId, credentialName, ExistingCustomerMicrosoftId, AzureSubscriptionId);
 				}
 			}
 			catch (System.FieldAccessException)
