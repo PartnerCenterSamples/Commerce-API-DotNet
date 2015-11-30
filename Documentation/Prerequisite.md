@@ -64,4 +64,4 @@ select Access Azure Service Management (preview).
 
     Granting consent for this application to update resources in customer tenants will be required
 when the application first runs in each tenant. To ease the administrative burden, the application
-object can be configured for "pre-consent." [Navigate here to view the Pre-Consent instructions.](Documentation/PreConsent.md)
+object can be configured for "pre-consent." [Navigate here to view the Pre-Consent instructions.](PreConsent.md)
