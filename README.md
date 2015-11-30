@@ -8,7 +8,7 @@ https://social.msdn.microsoft.com/Forums/en-US/home?forum=partnercenterapi
 
 ## Prerequisites
 
-Review and complete the steps detaild in the [prerequisite page](Documentation/Prequisite.md).
+Review and complete the steps detaild in the [prerequisite page](Documentation/Prerequisite.md).
 
 The Create VM scenario will require user credentials at run-time. This user must be a member of the
 Admin Agents group in the reseller directory. To allow unattended operation, the sample application 
