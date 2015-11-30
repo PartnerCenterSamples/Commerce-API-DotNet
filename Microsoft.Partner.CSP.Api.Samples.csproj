@@ -82,12 +82,19 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Documentation\CredentialManager.md" />
     <None Include="LICENSE.md" />
     <None Include="packages.config" />
+    <None Include="Documentation\PreConsent.md" />
+    <None Include="Documentation\Prerequisite.md" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Documentation\CredentialManager1.png" />
+    <Content Include="Documentation\CredentialManager2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
