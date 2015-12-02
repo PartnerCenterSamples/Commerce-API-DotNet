@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿/********************************************************
+*                                                        *
+*   Copyright (C) Microsoft. All rights reserved.        *
+*                                                        *
+*********************************************************/
+
+using System.Collections.Generic;
 
 namespace Microsoft.Partner.CSP.Api.V1.Samples
 {

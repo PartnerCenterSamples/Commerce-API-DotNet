@@ -1,4 +1,10 @@
-﻿using System;
+﻿/********************************************************
+*                                                        *
+*   Copyright (C) Microsoft. All rights reserved.        *
+*                                                        *
+*********************************************************/
+
+using System;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -510,6 +516,26 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 		}
 
 		/// <summary>
+		/// Query provider registration status looking for a state of 'Registered'
+		/// </summary>
+		/// <param name="subscriptionId">The subscriptionId for the Azure user</param>
+		/// <param name="providerNamespace">provider namespace to query</param>
+		/// <param name="retryAfter">seconds to wait between calss</param>
+		/// <param name="azureToken">Azure Authorization token</param>
+		/// <param name="correlationId">Correlation Id for the scenario</param>
+		public static void WaitForProviderRegistration(string subscriptionId, string providerNamespace,
+																int retryAfter, string azureToken, string correlationId)
+		{
+			bool registered = false;
+			do
+			{
+				Thread.Sleep(retryAfter * 1000);
+				var registrationResult = GetProviderRegistrationState(subscriptionId, providerNamespace, azureToken, correlationId);
+				registered = (registrationResult.registrationState == "Registered");
+			} while (registered == false);
+		}
+
+		/// <summary>
 		/// Waiting for the resource group to be created, if it is in provisioning state.
 		/// </summary>
 		/// <param name="subscriptionId">Subscription Id</param>
@@ -664,6 +690,53 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 				statusCode = GetNetworkInterfaceStatus(subscriptionId, resourceGroupName, networkInterface, azureToken,
 						correlationId);
 			} while (statusCode != (int)HttpStatusCode.OK);
+		}
+
+		/// <summary>
+		/// Get registration state of provider
+		/// </summary>
+		/// <param name="subscriptionId">The subscriptionId for the Azure user</param>
+		/// <param name="providerNamespace">provider namespace to query</param>
+		/// <param name="azureToken">Azure Authorization token</param>
+		/// <param name="correlationId">Correlation Id for the scenario</param>
+		/// <returns></returns>
+		public static dynamic GetProviderRegistrationState(string subscriptionId, string providerNamespace, 
+			string azureToken, string correlationId)
+		{
+			var request = (HttpWebRequest)HttpWebRequest.Create(string.Format(
+
+			"https://management.azure.com/subscriptions/{0}/providers/{1}?api-version=2015-01-01",
+			subscriptionId, providerNamespace));
+
+			request.Method = "GET";
+			request.Accept = "application/json";
+			request.ContentType = "application/json";
+
+			request.Headers.Add("x-ms-correlation-id", correlationId);
+			request.Headers.Add("x-ms-tracking-id", Guid.NewGuid().ToString());
+			request.Headers.Add("Authorization", "Bearer " + azureToken);
+
+			try
+			{
+				Utilities.PrintWebRequest(request, string.Empty);
+
+				var response = request.GetResponse();
+				using (var reader = new StreamReader(response.GetResponseStream()))
+				{
+					var responseContent = reader.ReadToEnd();
+					Utilities.PrintWebResponse((HttpWebResponse)response, responseContent);
+					return Json.Decode(responseContent);
+				}
+			}
+			catch (WebException webException)
+			{
+				using (var reader = new StreamReader(webException.Response.GetResponseStream()))
+				{
+					var responseContent = reader.ReadToEnd();
+					Utilities.PrintErrorResponse((HttpWebResponse)webException.Response, responseContent);
+				}
+			}
+			return string.Empty;
 		}
 
 		/// <summary>
@@ -1052,7 +1125,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 		public static dynamic CreateRoleAssignment(string azureToken, string scope, string userId, string roleId, string correlationId)
 		{
 			var request = (HttpWebRequest)HttpWebRequest.Create(string.Format(
-				"https://management.azure.com/{0}/providers/Microsoft.Authorization/roleAssignments/{1}?api-version=2015-07-01",
+				"https://management.azure.com{0}/providers/Microsoft.Authorization/roleAssignments/{1}?api-version=2015-07-01",
 				scope, roleId));
 
 			request.Method = "PUT";
@@ -1062,7 +1135,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			request.Headers.Add("x-ms-tracking-id", Guid.NewGuid().ToString());
 			request.Headers.Add("Authorization", "Bearer " + azureToken);
 
-			string roleDefinitionId = String.Format("{0}providers/Microsoft.Authorization/roleDefinitions/{1}", scope, roleId);
+			string roleDefinitionId = String.Format("{0}/providers/Microsoft.Authorization/roleDefinitions/{1}", scope, roleId);
 			string content = "{" +
 														"\"properties\": {" +
 																					 "\"roleDefinitionId\": \"" + roleDefinitionId + "\"," +

@@ -1,16 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Helpers;
+﻿/********************************************************
+*                                                        *
+*   Copyright (C) Microsoft. All rights reserved.        *
+*                                                        *
+*********************************************************/
+
+using System;
 
 namespace Microsoft.Partner.CSP.Api.V1.Samples
 {
-		class User
-		{
+	class User
+	{
+		/// <summary>
+		/// Read user information from console
+		/// </summary>
+		/// <returns>object describing user to be created</returns>
 		public static dynamic PopulateUserFromConsole()
 		{
 			Console.Clear();

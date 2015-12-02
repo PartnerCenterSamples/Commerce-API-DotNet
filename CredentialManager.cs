@@ -1,4 +1,10 @@
-﻿using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿/********************************************************
+*                                                        *
+*   Copyright (C) Microsoft. All rights reserved.        *
+*                                                        *
+*********************************************************/
+
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.Runtime.InteropServices;
@@ -9,6 +15,11 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 {
 	internal static class CredentialManager
 	{
+		/// <summary>
+		/// Get user credential from Credential Manager
+		/// </summary>
+		/// <param name="Name">Internet or network address label of entry.</param>
+		/// <returns>User credential created from values retrieved from credential manager</returns>
 		public static UserCredential GetCredential(string Name)
 		{
 			UserCredential psCredential = null;

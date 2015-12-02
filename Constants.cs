@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿/********************************************************
+*                                                        *
+*   Copyright (C) Microsoft. All rights reserved.        *
+*                                                        *
+*********************************************************/
+
 
 namespace Microsoft.Partner.CSP.Api.V1.Samples
 {

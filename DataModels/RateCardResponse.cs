@@ -9,15 +9,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Partner.CSP.Api.V1.Samples
+namespace Microsoft.Partner.CSP.Api.V1.Samples.DataModels
 {
-    public class UsageResponse
+    public class RateCardResponse
     {
-            
-            public List<UsageType> items { get; set; }
-            public string object_type { get; set; }
-            public string contract_version { get; set; }
-            public Links links { get; set; }
-        
+        public List<object> OfferTerms { get; set; }
+        public List<Resource> Meters { get; set; }
+        public string Currency { get; set; }
+        public string Locale { get; set; }
+        public string RatingDate { get; set; }
+        public bool IsTaxIncluded { get; set; }
     }
 }

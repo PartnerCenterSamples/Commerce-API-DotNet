@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.Partner.CSP.Api.V1.Samples.DataModels;
+using System;
 using System.Linq;
 using System.Net;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace Microsoft.Partner.CSP.Api.V1.Samples
 {
@@ -130,6 +130,15 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			return result;
 		}
 
+		/// <summary>
+		/// Create an Order for Azure in Integration Sandbox
+		/// </summary>
+		/// <param name="defaultDomain">default domain of the reseller</param>
+		/// <param name="appId">appid that is registered for this application in Azure Active Directory (AAD)</param>
+		/// <param name="key">Key for this application in Azure Active Directory</param>
+		/// <param name="customerMicrosoftId">Microsoft Id of the customer</param>
+		/// <param name="resellerMicrosoftId">Microsoft Id of the reseller</param>
+		/// <returns></returns>
 		public static string CreateOrderWithAzureTip(string defaultDomain, string appId, string key,
 																									string customerMicrosoftId, string resellerMicrosoftId)
 		{
@@ -163,6 +172,14 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 
 			return result;
 		}
+		/// <summary>
+		/// Create a new customer
+		/// </summary>
+		/// <param name="defaultDomain">default domain of the reseller</param>
+		/// <param name="appId">appid that is registered for this application in Azure Active Directory (AAD)</param>
+		/// <param name="key">Key for this application in Azure Active Directory</param>
+		/// <param name="resellerMicrosoftId">Microsoft Id of the reseller</param>
+		/// <returns></returns>
 		internal static string CreateCustomer(string defaultDomain, string appId, string key,
 				string resellerMicrosoftId)
 		{
@@ -274,7 +291,7 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 						}
 						Console.WriteLine("\nTOTAL COST:  {0}", totalCost);
 						// Setting the credit limit below the total cost for testing this scenario
-						double creditLimit = totalCost - 1;
+						double creditLimit = 100;
 						// Suspends the subscription if the total cost is above the credit limit.
 						if (totalCost > creditLimit)
 						{
@@ -489,42 +506,62 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 
 			// Waiting Time (in seconds) For Resource to be Provisioned
 			var retryAfter = 5;
+			// Retry attempts for resource provisioning errors
+			var retryAttempts = 5;
+			var attempts = 0;
 
 			// The following resources are to be created in order before creating a virtual machine.
 
 			// #1 Create Resource Group
-			var createResourceGroupResponse = AzureResourceManager.CreateResourceGroup(subscriptionId, resourceGroupName,
-					azureToken, correlationId);
-			if (createResourceGroupResponse == null)
+			do
 			{
-				return;
-			}
-			// Waiting for the resource group to be created, if the request is just Accepted and the creation is still pending.
-			if ((int)(createResourceGroupResponse.StatusCode) == (int)HttpStatusCode.Accepted)
-			{
-				AzureResourceManager.WaitForResourceGroupProvisioning(subscriptionId, resourceGroupName, retryAfter,
-						azureToken, correlationId);
-			}
+				var createResourceGroupResponse = AzureResourceManager.CreateResourceGroup(subscriptionId, resourceGroupName,
+																																									 azureToken, correlationId);
+				if (createResourceGroupResponse == null)
+				{
+					attempts++;
+				}
+				else
+				{
+					attempts = retryAttempts + 1;
+
+					// Waiting for the resource group to be created, if the request is just Accepted and the creation is still pending.
+					if ((int)(createResourceGroupResponse.StatusCode) == (int)HttpStatusCode.Accepted)
+					{
+						AzureResourceManager.WaitForResourceGroupProvisioning(subscriptionId, resourceGroupName, retryAfter,
+								azureToken, correlationId);
+					}
+				}
+			} while (attempts < retryAttempts);
 
 			// #2 Create Storage Account
 			// Register the subscription with Storage Resource Provider, for creating Storage Account
 			// Storage Resource Provider
 			const string storageProviderName = "Microsoft.Storage";
 			AzureResourceManager.RegisterProvider(subscriptionId, storageProviderName, azureToken, correlationId);
-			var storageAccountResponse = AzureResourceManager.CreateStorageAccount(subscriptionId, resourceGroupName,
-					storageAccountName, azureToken, correlationId);
-			if (storageAccountResponse == null)
+
+			attempts = 0;
+			do
 			{
-				return;
-			}
-			// Waiting for the storage account to be created, if the request is just Accepted and the creation is still pending.
-			if ((int)(storageAccountResponse.StatusCode) == (int)HttpStatusCode.Accepted)
-			{
-				var location = storageAccountResponse.Headers.Get("Location");
-				retryAfter = Int32.Parse(storageAccountResponse.Headers.Get("Retry-After"));
-				AzureResourceManager.WaitForStorageAccountProvisioning(location, resourceGroupName, retryAfter,
-						azureToken, correlationId);
-			}
+				var storageAccountResponse = AzureResourceManager.CreateStorageAccount(subscriptionId, resourceGroupName,
+																																							 storageAccountName, azureToken, correlationId);
+				if (storageAccountResponse == null)
+				{
+					attempts++;
+				}
+				else
+				{
+					attempts = retryAttempts + 1;
+					// Waiting for the storage account to be created, if the request is just Accepted and the creation is still pending.
+					if ((int)(storageAccountResponse.StatusCode) == (int)HttpStatusCode.Accepted)
+					{
+						var location = storageAccountResponse.Headers.Get("Location");
+						retryAfter = Int32.Parse(storageAccountResponse.Headers.Get("Retry-After"));
+						AzureResourceManager.WaitForStorageAccountProvisioning(location, resourceGroupName, retryAfter,
+								azureToken, correlationId);
+					}
+				}
+			} while (attempts < retryAttempts);
 
 			// Register the subscription with Network Resource Provider for creating Network Resources - Netowrk Securtiy Group, Virtual Network, Subnet, Public IP and Network Interface
 			// Network Resource Provider
@@ -532,93 +569,154 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			AzureResourceManager.RegisterProvider(subscriptionId, networkProviderName, azureToken, correlationId);
 
 			// #3 Create Network Security Group
-			var networkSecurityGroupResponse = AzureResourceManager.CreateNetworkSecurityGroup(subscriptionId,
-					resourceGroupName, networkSecurityGroupName, azureToken, correlationId);
-			if (networkSecurityGroupResponse == null)
+			attempts = 0;
+			do
 			{
-				return;
-			}
-			// Waiting for the network security group to be created, if the request is just Accepted and the creation is still pending.
-			if ((int)(networkSecurityGroupResponse.StatusCode) == (int)HttpStatusCode.Accepted)
-			{
-				AzureResourceManager.WaitForNetworkSecurityGroupProvisioning(subscriptionId, resourceGroupName,
-						networkSecurityGroupName, retryAfter, azureToken, correlationId);
-			}
+				var networkSecurityGroupResponse = AzureResourceManager.CreateNetworkSecurityGroup(subscriptionId,
+																											resourceGroupName, networkSecurityGroupName, azureToken, correlationId);
+				if (networkSecurityGroupResponse == null)
+				{
+					attempts++;
+				}
+				else
+				{
+					attempts = retryAttempts + 1;
+					// Waiting for the network security group to be created, if the request is just Accepted and the creation is still pending.
+					if ((int)(networkSecurityGroupResponse.StatusCode) == (int)HttpStatusCode.Accepted)
+					{
+						AzureResourceManager.WaitForNetworkSecurityGroupProvisioning(subscriptionId, resourceGroupName,
+								networkSecurityGroupName, retryAfter, azureToken, correlationId);
+					}
+				}
+			} while (attempts < retryAttempts);
+
 
 			// #4 Create Virtual Network
-			var virtualNetworkResponse = AzureResourceManager.CreateVirtualNetwork(subscriptionId, resourceGroupName,
-					virtualNetworkName, azureToken, correlationId);
-			if (virtualNetworkResponse == null)
+			attempts = 0;
+			do
 			{
-				return;
-			}
-			// Waiting for the virtual network to be created, if the request is just Accepted and the creation is still pending.
-			if ((int)(virtualNetworkResponse.StatusCode) == (int)HttpStatusCode.Accepted)
-			{
-				AzureResourceManager.WaitForVirtualNetworkProvisioning(subscriptionId, resourceGroupName,
-						virtualNetworkName, retryAfter, azureToken, correlationId);
-			}
+				var virtualNetworkResponse = AzureResourceManager.CreateVirtualNetwork(subscriptionId, resourceGroupName,
+																																		virtualNetworkName, azureToken, correlationId);
+				if (virtualNetworkResponse == null)
+				{
+					attempts++;
+				}
+				else
+				{
+					attempts = retryAttempts + 1;
+					// Waiting for the virtual network to be created, if the request is just Accepted and the creation is still pending.
+					if ((int)(virtualNetworkResponse.StatusCode) == (int)HttpStatusCode.Accepted)
+					{
+						AzureResourceManager.WaitForVirtualNetworkProvisioning(subscriptionId, resourceGroupName,
+								virtualNetworkName, retryAfter, azureToken, correlationId);
+					}
+				}
+			} while (attempts < retryAttempts);
+
 			// #5 Create Subnet
-			var subNetResponse = AzureResourceManager.CreateSubNet(subscriptionId, resourceGroupName, virtualNetworkName,
-					networkSecurityGroupId, subnetName, azureToken, correlationId);
-			if (subNetResponse == null)
+			attempts = 0;
+			do
 			{
-				return;
-			}
-			// Waiting for the subnet to be created, if the request is just Accepted and the creation is still pending.
-			if ((int)(subNetResponse.StatusCode) == (int)HttpStatusCode.Accepted)
-			{
-				AzureResourceManager.WaitForSubNetProvisioning(subscriptionId, resourceGroupName, virtualNetworkName,
-						subnetName, retryAfter, azureToken, correlationId);
-			}
+				var subNetResponse = AzureResourceManager.CreateSubNet(subscriptionId, resourceGroupName, virtualNetworkName,
+																														networkSecurityGroupId, subnetName, azureToken, correlationId);
+				if (subNetResponse == null)
+				{
+					attempts++;
+				}
+				else
+				{
+					attempts = retryAttempts + 1;
+					// Waiting for the subnet to be created, if the request is just Accepted and the creation is still pending.
+					if ((int)(subNetResponse.StatusCode) == (int)HttpStatusCode.Accepted)
+					{
+						AzureResourceManager.WaitForSubNetProvisioning(subscriptionId, resourceGroupName, virtualNetworkName,
+								subnetName, retryAfter, azureToken, correlationId);
+					}
+				}
+			} while (attempts < retryAttempts);
+
 			// #6 Create Public IP Address
-			var publicIpResponse = AzureResourceManager.CreatePublicIpAddress(subscriptionId, resourceGroupName,
-					publicIpName, azureToken, correlationId);
-			if (publicIpResponse == null)
+			attempts = 0;
+			do
 			{
-				return;
-			}
-			// Waiting for the public IP to be created, if the request is just Accepted and the creation is still pending.
-			if ((int)(publicIpResponse.StatusCode) == (int)HttpStatusCode.Accepted)
-			{
-				AzureResourceManager.WaitForPublicIpProvisioning(subscriptionId, resourceGroupName, publicIpName,
-						retryAfter, azureToken, correlationId);
-			}
+				var publicIpResponse = AzureResourceManager.CreatePublicIpAddress(subscriptionId, resourceGroupName,
+																																							publicIpName, azureToken, correlationId);
+				if (publicIpResponse == null)
+				{
+					attempts++;
+				}
+				else
+				{
+					attempts = retryAttempts + 1;
+					// Waiting for the public IP to be created, if the request is just Accepted and the creation is still pending.
+					if ((int)(publicIpResponse.StatusCode) == (int)HttpStatusCode.Accepted)
+					{
+						AzureResourceManager.WaitForPublicIpProvisioning(subscriptionId, resourceGroupName, publicIpName,
+								retryAfter, azureToken, correlationId);
+					}
+				}
+			} while (attempts < retryAttempts);
+
 			// #7 Create Network Interface
-			var networkInterfaceResponse = AzureResourceManager.CreateNetworkInterface(subscriptionId, resourceGroupName,
-					networkInterfaceName, networkSecurityGroupId, ipName, publicIpId, subNetId, azureToken, correlationId);
-			if (networkInterfaceResponse == null)
+			attempts = 0;
+			do
 			{
-				return;
-			}
-			// Waiting for the network interface to be created, if the request is just Accepted and the creation is still pending.
-			if ((int)(networkInterfaceResponse.StatusCode) == (int)HttpStatusCode.Accepted)
-			{
-				AzureResourceManager.WaitForNetworkInterfaceProvisioning(subscriptionId, resourceGroupName,
-						networkInterfaceName, retryAfter, azureToken, correlationId);
-			}
+				var networkInterfaceResponse = AzureResourceManager.CreateNetworkInterface(subscriptionId, resourceGroupName,
+										networkInterfaceName, networkSecurityGroupId, ipName, publicIpId, subNetId, azureToken, correlationId);
+				if (networkInterfaceResponse == null)
+				{
+					attempts++;
+				}
+				else
+				{
+					attempts = retryAttempts + 1;
+					// Waiting for the network interface to be created, if the request is just Accepted and the creation is still pending.
+					if ((int)(networkInterfaceResponse.StatusCode) == (int)HttpStatusCode.Accepted)
+					{
+						AzureResourceManager.WaitForNetworkInterfaceProvisioning(subscriptionId, resourceGroupName,
+								networkInterfaceName, retryAfter, azureToken, correlationId);
+					}
+				}
+			} while (attempts < retryAttempts);
+
 			// #8 Create Azure Virtual Machine
 			// Compute Resource Provider
 			const string computeProviderName = "Microsoft.Compute";
 			AzureResourceManager.RegisterProvider(subscriptionId, computeProviderName, azureToken, correlationId);
 			var virtualMachineResponse = AzureResourceManager.CreateVirtualMachine(subscriptionId, resourceGroupName,
-					networkInterfaceId, storageAccountName, vitualMachineName, azureToken, correlationId);
+				networkInterfaceId, storageAccountName, vitualMachineName, azureToken, correlationId);
+			if (virtualMachineResponse == null)
+			{
+				return;
+			}
 
 			// #9  Create a New User
 			var newUserInfo = User.PopulateUserFromConsole();
 			var newUser = AzureResourceManager.CreateUser(newUserInfo.displayName, newUserInfo.mailNickname,
 																										newUserInfo.userPrincipalName, newUserInfo.password,
 																										azureToken, correlationId);
+			// #10 Add user to Owner role
+			// Register the subscription with Authorization Provider
+			const string authorizationProviderName = "Microsoft.Authorization";
+			var registrationResult = AzureResourceManager.RegisterProvider(subscriptionId, authorizationProviderName, azureToken, correlationId);
 
 			// Role Id for Role 'Owner'
 			const string roleIdForOwner = "8e3af657-a8ff-443c-a75c-2fe8c4bcb635";
-			var scope = String.Format("subscriptions/{0}", subscriptionId);
+			var scope = String.Format("/subscriptions/{0}", subscriptionId);
 			// Assigning 'Owner' role to the new user 
-			// This is not working now.
 			var roleAssignment = AzureResourceManager.CreateRoleAssignment(azureToken, scope, newUser.objectId, roleIdForOwner,
 					correlationId);
 		}
 
+		/// <summary>
+		/// Creates a virtual machine in a new Azure subscription for a new customer. 
+		/// </summary>
+		/// <param name="defaultDomain">default domain of the reseller</param>
+		/// <param name="ptrCtrAppId">appId for this program that is registered in the Partner Center</param>
+		/// <param name="ptrCtrAppSecret">app secret for this program that is registered in the Partner Center</param>
+		/// <param name="resellerMicrosoftId">cid of the reseller</param>
+		/// <param name="azureAppId">appId for this program that is registered in the reseller azure directory and configured for pre-consent</param>
+		/// <param name="credentialName">Internet or network address label of entry in credential manager</param>
 		public static void CreateVirtualMachineInNewSubscription(string defaultDomain, string ptrCtrAppId, string ptrCtrAppSecret,
 																														 string resellerMicrosoftId, string azureAppId, string credentialName)
 		{

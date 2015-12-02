@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Partner.CSP.Api.V1.Samples
+namespace Microsoft.Partner.CSP.Api.V1.Samples.DataModels
 {
     public class UsageType
     {

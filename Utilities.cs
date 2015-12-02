@@ -7,6 +7,7 @@
 namespace Microsoft.Partner.CSP.Api.V1.Samples
 {
 	using System;
+	using System.IO;
 	using System.Net;
 
 	public class Utilities
@@ -78,10 +79,12 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 		/// <summary>
 		/// Prompts the user to edit the config paramerters in app.config
 		/// </summary>
-		public static void ValidateConfiguration(string microsoftId, string defaultDomain, string appId, string key, string ExistingCustomerMicrosoftId)
+		public static void ValidateConfiguration(string microsoftId, string defaultDomain, 
+			string appId, string key, string ExistingCustomerMicrosoftId, string azureAppId, string credentialName)
 		{
 			if (microsoftId.Equals("Your Organization Microsoft Id") || defaultDomain.Equals("Your default domain, something like contoso.onmicrosoft.com") ||
-					appId.Equals("Your App Id") || key.Equals("Your key goes here") || ExistingCustomerMicrosoftId.Equals("Your existing customer ID"))
+					appId.Equals("Your App Id") || key.Equals("Your key goes here") || ExistingCustomerMicrosoftId.Equals("Your existing customer ID") ||
+					azureAppId.Equals("Your Azure App Id") || credentialName.Equals("Your credential name"))
 			{
 				Console.Write(
 						"\nHave you updated the app.config, with the settings from https://partnercenter.microsoft.com (y/n)? ");
@@ -97,6 +100,36 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 					Console.ReadLine();
 					return;
 				}
+			}
+		}
+
+		/// <summary>
+		/// Write content to file
+		/// </summary>
+		/// <param name="path">path of file</param>
+		/// <param name="content">content to write</param>
+		/// <param name="append">if false, file is deleted before write</param>
+		public static void WriteRateCardToFile(string path, string content, bool append)
+		{
+			try
+			{
+				if (!append)
+				{
+
+					if (File.Exists(path))
+					{
+						File.Delete(path);
+					}
+				}
+				using (StreamWriter w = File.AppendText(path))
+				{
+					w.WriteLine("\n{0}", content);
+				}
+			}
+			catch (Exception exception)
+			{
+				string message = exception.Message;
+				return;
 			}
 		}
 

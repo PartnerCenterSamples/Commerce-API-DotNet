@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.Partner.CSP.Api.V1.Samples
+namespace Microsoft.Partner.CSP.Api.V1.Samples.DataModels
 {
     public class Resource
     {

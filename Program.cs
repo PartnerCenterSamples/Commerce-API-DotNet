@@ -4,9 +4,6 @@
 *                                                        *
 *********************************************************/
 
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
 
 namespace Microsoft.Partner.CSP.Api.V1.Samples
 {
@@ -48,13 +45,13 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			//		Pre-consent
 			//  
 			string azureAppId = ConfigurationManager.AppSettings["AzureAppId"];
-			string AzureSubscriptionId = ConfigurationManager.AppSettings["AzureSubscriptionId"];
 			string credentialName = ConfigurationManager.AppSettings["CredentialName"];
 
 
 
 			// Prompts the user to edit the config parametres if its not already done.
-			Utilities.ValidateConfiguration(microsoftId, defaultDomain, appId, key, ExistingCustomerMicrosoftId);
+			Utilities.ValidateConfiguration(microsoftId, defaultDomain, appId, key, ExistingCustomerMicrosoftId,
+				azureAppId, credentialName);
 
 			// Gets the scenario from app config. If an invalid entry is found, prompts the user to enter a valid value.
 			string scenario = ConfigurationManager.AppSettings["scenario"];

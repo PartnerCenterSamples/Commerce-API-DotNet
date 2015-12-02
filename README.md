@@ -1,14 +1,17 @@
 # Commerce-API-DotNet
 
 These are samples in C# for using the commerce APIs for Microsoft Partner Center. 
-These CREST APIs are documented at https://msdn.microsoft.com/en-us/library/partnercenter/dn974944.aspx
+These CREST APIs are documented at [https://msdn.microsoft.com/en-us/library/partnercenter/dn974944.aspx](https://msdn.microsoft.com/en-us/library/partnercenter/dn974944.aspx).
 
 A public forum for discussing the APIs is available at 
-https://social.msdn.microsoft.com/Forums/en-US/home?forum=partnercenterapi
+[https://social.msdn.microsoft.com/Forums/en-US/home?forum=partnercenterapi](https://social.msdn.microsoft.com/Forums/en-US/home?forum=partnercenterapi).
 
 ## Prerequisites
 
-Review and complete the steps detaild in the [prerequisite page](Documentation/Prerequisite.md).
+To update resources in a customer tenant or directory, an application must have a security principal. The
+principal can be created in every customer tenant, or can be created in the reseller tenant via a multi-tenant,
+native application. To ease the admistrative burden for the sample, the latter option is implemented. The
+steps are detailed in the [prerequisite page](Documentation/Prerequisite.md).
 
 The Create VM scenario will require user credentials at run-time. This user must be a member of the
 Admin Agents group in the reseller directory. To allow unattended operation, the sample application 

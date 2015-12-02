@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/********************************************************
+*                                                        *
+*   Copyright (C) Microsoft. All rights reserved.        *
+*                                                        *
+*********************************************************/
+
+using System;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web.Helpers;
 
 namespace Microsoft.Partner.CSP.Api.V1.Samples
@@ -16,6 +18,12 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 		// https://msdn.microsoft.com/en-us/library/partnercenter/dn974945.aspx
 		private static string streamName = "stream-us";
 
+		/// <summary>
+		/// Streams are forward moving cursors with no ability to retrieve a completed page on a given stream. As new events are published, they will become available for consumption on the stream.
+		/// </summary>
+		/// <param name="resellerCid">cid of the reseller</param>
+		/// <param name="sa_Token">sales agent token</param>
+		/// <returns>object describing the stream</returns>
 		public static dynamic CreateStream(string resellerCid, string sa_Token)
 		{
 			var body = new
@@ -66,6 +74,12 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			return string.Empty;
 		}
 
+/// <summary>
+/// Delete an event stream
+/// </summary>
+/// <param name="resellerCid">cid of the reseller</param>
+/// <param name="sa_Token">sales agent token</param>
+/// <returns>object the describes the deleted stream</returns>
 		public static dynamic DeleteStream(string resellerCid, string sa_Token)
 		{
 			var request = (HttpWebRequest)
@@ -104,6 +118,12 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			return string.Empty;
 		}
 
+		/// <summary>
+		/// Retreives the next page of events
+		/// </summary>
+		/// <param name="resellerCid">cid of the reseller</param>
+		/// <param name="sa_Token">sales agent token</param>
+		/// <returns>array of items describing the events</returns>
 		private static dynamic GetStreamPage(string resellerCid, string sa_Token)
 		{
 			var request = (HttpWebRequest)
@@ -142,6 +162,12 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			return string.Empty;
 		}
 
+		/// <summary>
+		/// Signals that events have been processed and can be removed from stream. Un-marked pages are resent.
+		/// </summary>
+		/// <param name="completionHref">endpoint to call to mark page as read</param>
+		/// <param name="httpMethod">Http method to use in call</param>
+		/// <param name="sa_Token">sales agent token</param>
 		private static void MarkStreamPageComplete(string completionHref, string httpMethod, string sa_Token)
 		{
 			var request = (HttpWebRequest)
@@ -179,10 +205,18 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 			}
 		}
 
+		/// <summary>
+		/// Block thread, waiting for specified event type to occur on specified subscription. Events for other subscriptions are discarded.
+		/// </summary>
+		/// <param name="resellerCid">cid of the reseller</param>
+		/// <param name="sa_Token">sales agent token</param>
+		/// <param name="subscriptionId">id of the subscription to watch</param>
+		/// <param name="subscriptionEventType">event type to watch</param>
+		/// <returns></returns>
 		public static bool WaitForSubscriptionEvent(string resellerCid, string sa_Token, string subscriptionId, string subscriptionEventType)
 		{
-			int retryAfter = 30;   // seconds
-			TimeSpan abortAfter = new TimeSpan(0, 5, 0);
+			int retryAfter = 60;   // seconds  - Make a new call after this interval
+			TimeSpan abortAfter = new TimeSpan(0, 10, 0);  // stop waiting after this interval
 
 			DateTime start = DateTime.Now;
 
@@ -206,7 +240,12 @@ namespace Microsoft.Partner.CSP.Api.V1.Samples
 				// event not found - mark page as read
 				MarkStreamPageComplete(subscriptionEvents.links.completion.href, subscriptionEvents.links.completion.method, sa_Token);
 
-				if (eventFound) { return true; }
+				if (eventFound)
+				{
+					// wait for X minutes...
+					//Thread.Sleep(5 * 60 * 1000);
+					return true;
+				}
 
 				Thread.Sleep(retryAfter * 1000);
 			} while (DateTime.Now < start + abortAfter);
